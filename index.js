@@ -12,7 +12,7 @@ app.use(express.json());
 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.swu9d.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.uomr8.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -28,12 +28,25 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const productCollection = client.db('emaJohnDB').collection('products');
+    // DATABASE+COLLECTIONS
+    const productCollection = client.db('EmaJohnDB').collection('productsCollection');
 
+    //**************APIs ********************/ 
     app.get('/products', async(req, res) => {
-        const result = await productCollection.find().toArray();
-        res.send(result);
+      const result = await productCollection.find().toArray();
+      res.send(result);
     })
+
+    app.get('/productsCount',async(req,res)=>{
+      const productsCount=await productCollection.estimatedDocumentCount()
+      // console.log(productsCount);
+      res.send({productsCount})
+    })
+
+
+
+
+    //*************************************/ 
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
