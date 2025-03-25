@@ -11,7 +11,7 @@ app.use(express.json());
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.uomr8.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -33,8 +33,27 @@ async function run() {
 
     //**************APIs ********************/ 
     app.get('/products', async(req, res) => {
-      const result = await productCollection.find().toArray();
+      // const query=req.query
+      // console.log("QUERY=>",query);
+      const page=parseInt(req.query.page)
+      const size=parseInt(req.query.size)
+
+      const result = await productCollection.find()
+      .skip(page*size)
+      .limit(size)
+      .toArray();
       res.send(result);
+    })
+
+    app.post('/productsByIds',async(req,res)=>{
+      const productIds=req.body;
+      const ids=productIds.map(prod=>new ObjectId(prod))
+      // console.log(ids);
+      const query={_id:{$in:ids}}
+      const products=await productCollection.find(query).toArray()
+      // console.log(productIds);
+      // console.log(products);
+      res.send(products)
     })
 
     app.get('/productsCount',async(req,res)=>{
